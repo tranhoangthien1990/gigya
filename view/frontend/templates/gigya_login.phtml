@@ -1,0 +1,41 @@
+<?php
+/**
+ * Output Gigya login form html.
+ * defined in GigyaIM\view\frontend\layout\customer_account_login.xml
+ * The block for this form is - GigyaIM\Block\Form\Gigyalogin which is mapped to Magento Customer block. mapped in di.xml
+ *
+ * Here: add accounts.showScreenSet to gigyaInit array
+ * Full flow (on gigya_script):
+ * Call gigya screen sets.
+ * Capture Gigya login event.
+ * Create and submit registration form.
+ * Submit to Gigya model Controller.
+ **/
+
+/** @var \Gigya\GigyaIM\Block\Form\GigyaLogin $block */
+
+$display = $block->getData('display');
+$placeholderElementId = $display == 'embed' ? 'gigya-login-embed' : 'gigya-login-popup';
+
+?>
+<div class="block-customer-login">
+    <div class="block-content" aria-labelledby="block-customer-login-heading">
+        <?php if ($display == 'embed'): ?>
+            <!-- Gigya login screen placeholder - id can be dynamic: -->
+            <div id="<?php echo $placeholderElementId; ?>" class="gigya-login gigya-loader-location"></div>
+        <?php endif; ?>
+        <?php echo $block->getBlockHtml('formkey'); ?>
+        <script>
+            // add Raas login screens function to Gigya init.
+            window.gigyaInit = window.gigyaInit || [];
+            var <?php echo $display; ?>LoginScreenSetParams = {
+                screenSet : "<?php echo $block->getLoginDesktopScreensetId() ?>",
+                containerID : "<?php echo $placeholderElementId; ?>",
+                startScreen : "gigya-login-screen",
+                mobileScreenSet : "<?php echo $block->getLoginMobileScreensetId() ?>" // optional - for using separate mobile screen set.
+            };
+            var <?php echo $display; ?>RaasLoginScreen = {"function": "accounts.showScreenSet", "parameters": <?php echo $display; ?>LoginScreenSetParams};
+            window.gigyaInit.push(<?php echo $display; ?>RaasLoginScreen);
+        </script>
+    </div>
+</div>

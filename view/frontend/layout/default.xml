@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Add Gigya script to site footer.
+ */
+-->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <referenceContainer name="after.body.start">
+            <container name="gigya.GigyaIM.gigya_script">
+                <block class="Gigya\GigyaIM\Block\GigyaScript" name="GigyaScript" template="Gigya_GigyaIM::gigya_script.phtml" ifconfig="gigya_section/general/enable_gigya">
+                    <block class="Gigya\GigyaIM\Block\Form\GigyaLogin" name="GigyaModalLogin" template="Gigya_GigyaIM::gigya_login.phtml">
+                        <arguments>
+                            <argument name="display" xsi:type="string">popup</argument>
+                        </arguments>
+                    </block>
+                </block>
+            </container>
+        </referenceContainer>
+    </body>
+</page>

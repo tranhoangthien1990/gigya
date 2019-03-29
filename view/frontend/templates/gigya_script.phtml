@@ -1,0 +1,82 @@
+<?php
+/*
+ * Add Gigya script to page body.
+ * Defined in view/frontend/layout/default.xml
+ * Variables can be set and passed from the block object model: block/GigyaScript
+ */
+
+/** @var \Gigya\GigyaIM\Block\GigyaScript $block */
+
+$scriptDomain = $this->helper('Gigya\GigyaIM\Helper\GigyaScriptHelper')->getGigyaScriptDomain();
+?>
+
+<script>
+	var login_state_url = "<?php echo $block->getMagentoLoginStateUrl(); ?>";
+	var logout_url = "<?php echo $block->getLogoutUrl(); ?>";
+	var login_post_url = "<?php echo $block->getPostActionUrl(); ?>";
+	var edit_post_url = "<?php echo $block->getUrl('customer/account/editPost'); ?>";
+	var login_url = "<?php echo $block->getLoginUrl(); ?>";
+	var magento_user_logged_in = false;
+	var enable_login = true;
+	var gigya_enabled = <?php echo $block->isGigyaEnabled() ? 'true' : 'false'; ?>;
+
+	var m;
+</script>
+<script>
+	require([
+		"jquery",
+		"gigya_script"
+	], function ($, gigyaMage2) {
+		m = gigyaMage2;
+		"use strict";
+
+        var loadGigyaScript = function(magentoLoggedIn)
+        {
+            gigyaMage2.Params.magento_user_logged_in = magentoLoggedIn;
+
+            window.gigyaInit = window.gigyaInit || [];
+            // Set Gigya global configuration object
+            window.__gigyaConf = {
+                // Gigya user session time should be equal to Magento session time
+                sessionExpiration: <?php echo $block->getUserSessionLifetime(); ?>
+            };
+
+            gigyaMage2.Functions.loadGigyaScript(
+                "<?php echo $block->getGigyaApiKey() ?>",
+                "<?php echo $block->getLanguage() ?>",
+                <?php echo $scriptDomain ? '"'.$scriptDomain.'"' : 'false' ?>
+            );
+
+            $('a[href$="logout/"]').click(function () {
+                gigya.accounts.logout();
+                return false;
+            });
+        };
+
+		var retryCounter = $.cookie("gig_login_retry");
+		if (retryCounter && parseInt(retryCounter) >= 3) {
+			enable_login = false;
+			loadGigyaScript(false);
+		}
+        else
+        {
+			$.ajax({
+				type: "GET",
+				url: login_state_url,
+				showLoader: false
+			}).done(
+				/**
+				 * @param data
+				 * @property data.logged_in
+				 */
+				function (data) {
+				if (typeof data.logged_in !== 'undefined') {
+					magento_user_logged_in = (data.logged_in == '1');
+					gigyaMage2.Params.magento_user_logged_in = magento_user_logged_in;
+				}
+				loadGigyaScript(gigyaMage2.Params.magento_user_logged_in);
+			});
+        }
+    });
+</script>
+<?php echo $block->getChildHtml('GigyaModalLogin'); ?>

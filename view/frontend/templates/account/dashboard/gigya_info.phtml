@@ -1,0 +1,25 @@
+<?php
+/** @var \Gigya\GigyaIM\Block\Account\Dashboard\GigyaInfo $block */
+?>
+
+<div class="block block-dashboard-info">
+    <div class="block-title"><strong><?php /* @escapeNotVerified */ echo __('Account Information') ?></strong></div>
+    <div class="block-content">
+        <div id="gigya-edit-profile" class="gigya-edit-profile gigya-loader-location"></div>
+        <?php echo $block->getBlockHtml('formkey'); ?>
+        <script>
+            window.gigyaInit = window.gigyaInit || [];
+            var screenSetParams = {
+                screenSet : "<?php echo $block->getProfileDesktopScreensetId() ?>",
+                containerID : "gigya-edit-profile",
+                mobileScreenSet : "<?php echo $block->getProfileMobileScreensetId() ?>", // optional - for using separate mobile screen set.
+                onAfterSubmit: function(eventObj) {
+                    // m var not ready on screenSetParams declaration
+                    m.Functions.gigyaAjaxUpdateProfile(eventObj);
+                }
+            };
+            var raasInfoScreen = {"function": "accounts.showScreenSet", "parameters": screenSetParams};
+            window.gigyaInit.push(raasInfoScreen);
+        </script>
+    </div>
+</div>

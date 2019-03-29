@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © 2017 Clever-age
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
+    <event name="customer_load_after">
+        <!-- Enrich the Magento customer entity with the corresponding Gigya's account data, and save the entity -->
+        <observer name="gigyaBackendMagentoCustomerEnricherObserver" instance="Gigya\GigyaIM\Observer\BackendMagentoCustomerEnricher" />
+    </event>
+    <event name="customer_save_before">
+        <!-- Enrich the Gigya account data with the corresponding Magento customer entity, and update the account on Gigya service -->
+        <observer name="gigyaBackendGigyaAccountEnricherObserver" instance="Gigya\GigyaIM\Observer\BackendGigyaAccountEnricher" />
+    </event>
+    <event name="gigya_failed_sync_to_gigya">
+        <!-- Persist the Gigya data to unable a further retry -->
+        <observer name="gigyaBackendGigyaUpdateFailedObserver" instance="Gigya\GigyaIM\Observer\SyncCustomerToGigyaObserver" />
+    </event>
+    <event name="gigya_success_sync_to_gigya">
+        <!-- Delete the persisted Gigya data, if any, that were stored for a further retry -->
+        <observer name="gigyaBackendGigyaUpdateSucceededObserver" instance="Gigya\GigyaIM\Observer\SyncCustomerToGigyaObserver" />
+    </event>
+    <event name="gigya_failed_map_from_magento">
+        <!-- Delete the persisted Gigya data, if any, that were stored for a further retry -->
+        <observer name="gigyaGigyaFromMagentoFieldMappingObserver" instance="Gigya\GigyaIM\Observer\SyncCustomerToGigyaObserver" />
+    </event>
+</config>
